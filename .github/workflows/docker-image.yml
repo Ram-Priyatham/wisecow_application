@@ -45,5 +45,11 @@ jobs:
         sleep 100 #for pods waiting time
         kubectl get pods -n wisecow
         kubectl get service -n wisecow
-        nohup kubectl port-forward svc/wisecow-service 8080:80 &
-        curl localhost:8080
+    - name: Portforward the service
+      run: |
+        nohup kubectl port-forward svc/wisecow-service 8080:80 > port-forward.log 2>&1 &
+        while ! nc -z localhost 8080; do   
+          sleep 1
+        done
+        curl http://localhost:8080
+        pkill -f "kubectl port-forward svc/wisecow-service"
